@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/amikai/gogolive/model"
@@ -32,11 +33,36 @@ func TestVerifyPassword(t *testing.T) {
 		mockUserRepo := mock.NewMockIUserRepo(mockCtrl)
 		repo := model.Repo{UserRepo: mockUserRepo}
 		userService := NewUserService(&repo)
-		// TODO: Finish it
+
 		mockUserRepo.EXPECT().FindByAccount(stringType).Return(nil, nil).Times(1)
 		ok, err := userService.VerifyPassword(model.User{})
 		assert.False(t, ok)
 		assert.NoError(t, err)
 	})
 
+}
+
+func TestRegister(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	userType := gomock.AssignableToTypeOf(model.User{})
+
+	t.Run("user register error", func(t *testing.T) {
+		mockUserRepo := mock.NewMockIUserRepo(mockCtrl)
+		repo := model.Repo{UserRepo: mockUserRepo}
+		userService := NewUserService(&repo)
+		mockUserRepo.EXPECT().Store(userType).Return(nil).Times(1)
+		err := userService.Register(model.User{})
+		assert.NoError(t, err)
+	})
+
+	t.Run("user register success", func(t *testing.T) {
+		mockUserRepo := mock.NewMockIUserRepo(mockCtrl)
+		repo := model.Repo{UserRepo: mockUserRepo}
+		userService := NewUserService(&repo)
+		mockUserRepo.EXPECT().Store(userType).Return(errors.New("")).Times(1)
+		err := userService.Register(model.User{})
+		assert.Error(t, err)
+	})
 }
