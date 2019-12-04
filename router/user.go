@@ -19,6 +19,40 @@ func jsonValidate(schema []byte) bool {
 	return true
 }
 
+func Signin(s *service.Service) gin.HandlerFunc {
+	signinForm := struct {
+		Account  string `json:"account" binding:"required"`
+		Password string `json:"password" binding:"required"`
+	}{}
+
+	return func(c *gin.Context) {
+		var err error
+		err = c.ShouldBindJSON(&signinForm)
+		if err != nil {
+			c.JSON(http.StatusBadRequest,
+				gin.H{
+					"status": "error",
+					"mes":    "wrong json format",
+				})
+			return
+		}
+
+		err = s.UserSerivce.VerifyPassword(model.User{
+			Account:  signinForm.Account,
+			Password: signinForm.Password,
+		})
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest,
+				gin.H{
+					"status": "error",
+					"mes":    err,
+				})
+			return
+		}
+	}
+}
+
 func Register(s *service.Service) gin.HandlerFunc {
 	registerForm := struct {
 		Account  string `json:"account" binding:"required"`

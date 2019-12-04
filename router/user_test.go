@@ -123,3 +123,53 @@ func TestRegister(t *testing.T) {
 	})
 
 }
+
+func TestSignin(t *testing.T) {
+	// setup go mock
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	requestPath := "/signin"
+
+	setUpMockAndRouter := func() (*mock.MockIUserService, *httptest.Server) {
+		mockUserService := mock.NewMockIUserService(mockCtrl)
+
+		gin.SetMode(gin.DebugMode)
+		router := gin.New()
+		router.POST(requestPath, Signin(&service.Service{UserSerivce: mockUserService}))
+		server := httptest.NewServer(router)
+		return mockUserService, server
+	}
+
+	newRequest := func(t *testing.T, serverURL string, path string) *httpexpect.Request {
+		return httpexpect.New(t, serverURL).POST(path)
+	}
+
+	t.Run("invalid field", func(t *testing.T) {
+		mockUserService, server := setUpMockAndRouter()
+		defer server.Close()
+
+		mockUserService.EXPECT().VerifyPassword(gomock.Any()).Return(nil).Times(0)
+		respJSON := newRequest(t, server.URL, requestPath).
+			WithHeader("Content-Type", "application/json").
+			WithJSON(map[string]interface{}{}).
+			Expect().
+			Status(http.StatusBadRequest).JSON()
+		respJSON.Path("$.status").Equal("error")
+	})
+
+	t.Run("verify password failed", func(t *testing.T) {
+		mockUserService, server := setUpMockAndRouter()
+		defer server.Close()
+
+		mockUserService.EXPECT().VerifyPassword(gomock.Any()).Return(errors.New("mock")).Times(1)
+		respJSON := newRequest(t, server.URL, requestPath).
+			WithHeader("Content-Type", "application/json").
+			WithJSON(map[string]interface{}{
+				"account":  "account",
+				"password": "password",
+			}).
+			Expect().
+			Status(http.StatusBadRequest).JSON()
+		respJSON.Path("$.status").Equal("error")
+	})
+}
