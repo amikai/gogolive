@@ -9,6 +9,7 @@ import (
 
 type IUserService interface {
 	Register(user model.User) error
+	VerifyPassword(user model.User) (bool, error)
 }
 
 type UserService struct {
@@ -38,6 +39,22 @@ func comparePassword(hashedPassword string, plainPassword []byte) bool {
 		return false
 	}
 	return true
+}
+
+// VerifyPassword verify password when login
+func (service *UserService) VerifyPassword(user model.User) (bool, error) {
+	var err error
+	plainPassword := []byte(user.Password)
+	userInStore, err := service.Repo.UserRepo.FindByAccount(user.Account)
+	if userInStore == nil {
+		return false, err
+	}
+	hashedPassword := []byte(userInStore.Password)
+	err = bcrypt.CompareHashAndPassword(hashedPassword, plainPassword)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // register account
