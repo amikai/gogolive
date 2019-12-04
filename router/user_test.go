@@ -157,6 +157,22 @@ func TestSignin(t *testing.T) {
 		respJSON.Path("$.status").Equal("error")
 	})
 
+	t.Run("successful signin", func(t *testing.T) {
+		mockUserService, server := setUpMockAndRouter()
+		defer server.Close()
+
+		mockUserService.EXPECT().VerifyPassword(gomock.Any()).Return(nil).Times(1)
+		respJSON := newRequest(t, server.URL, requestPath).
+			WithHeader("Content-Type", "application/json").
+			WithJSON(map[string]interface{}{
+				"account":  "account",
+				"password": "password",
+			}).
+			Expect().
+			Status(http.StatusOK).JSON()
+		respJSON.Path("$.status").Equal("ok")
+	})
+
 	t.Run("verify password failed", func(t *testing.T) {
 		mockUserService, server := setUpMockAndRouter()
 		defer server.Close()

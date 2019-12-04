@@ -50,6 +50,12 @@ func Signin(s *service.Service) gin.HandlerFunc {
 				})
 			return
 		}
+
+		c.JSON(http.StatusOK,
+			gin.H{
+				"status": "ok",
+			})
+
 	}
 }
 
