@@ -24,8 +24,7 @@ func TestVerifyPassword(t *testing.T) {
 		plainPassword := "plainPassword"
 		hashedPassword := "$2a$10$WU.qv8CLG3G.VnvQ/M3O2OrBaNf0VrZtC1YhEdckqWn4YtvQxs9j2"
 		mockUserRepo.EXPECT().FindByAccount(stringType).Return(&model.User{Password: hashedPassword}, nil).Times(1)
-		ok, err := userService.VerifyPassword(model.User{Password: plainPassword})
-		assert.True(t, ok)
+		err := userService.VerifyPassword(model.User{Password: plainPassword})
 		assert.NoError(t, err)
 	})
 
@@ -35,9 +34,8 @@ func TestVerifyPassword(t *testing.T) {
 		userService := NewUserService(&repo)
 
 		mockUserRepo.EXPECT().FindByAccount(stringType).Return(nil, nil).Times(1)
-		ok, err := userService.VerifyPassword(model.User{})
-		assert.False(t, ok)
-		assert.NoError(t, err)
+		err := userService.VerifyPassword(model.User{})
+		assert.Error(t, err)
 	})
 
 }
