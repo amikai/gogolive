@@ -19,6 +19,11 @@ func jsonValidate(schema []byte) bool {
 	return true
 }
 
+func reportStatus(c *gin.Context, code int, status, mes string) {
+	c.JSON(code, gin.H{"status": status, "mes": mes})
+	return
+}
+
 func Signin(s *service.Service) gin.HandlerFunc {
 	signinForm := struct {
 		Account  string `json:"account" binding:"required"`
@@ -29,11 +34,7 @@ func Signin(s *service.Service) gin.HandlerFunc {
 		var err error
 		err = c.ShouldBindJSON(&signinForm)
 		if err != nil {
-			c.JSON(http.StatusBadRequest,
-				gin.H{
-					"status": "error",
-					"mes":    "wrong json format",
-				})
+			reportStatus(c, http.StatusBadRequest, "error", "wrong json format")
 			return
 		}
 
@@ -43,19 +44,10 @@ func Signin(s *service.Service) gin.HandlerFunc {
 		})
 
 		if err != nil {
-			c.JSON(http.StatusBadRequest,
-				gin.H{
-					"status": "error",
-					"mes":    err,
-				})
+			reportStatus(c, http.StatusBadRequest, "error", err.Error())
 			return
 		}
-
-		c.JSON(http.StatusOK,
-			gin.H{
-				"status": "ok",
-			})
-
+		reportStatus(c, http.StatusOK, "ok", "successfully signin")
 	}
 }
 
@@ -70,11 +62,7 @@ func Register(s *service.Service) gin.HandlerFunc {
 		// bind json form
 		err = c.ShouldBindBodyWith(&registerForm, binding.JSON)
 		if err != nil {
-			c.JSON(http.StatusBadRequest,
-				gin.H{
-					"status": "error",
-					"mes":    "wrong json format",
-				})
+			reportStatus(c, http.StatusBadRequest, "error", "wrong json format")
 			return
 		}
 
@@ -85,14 +73,11 @@ func Register(s *service.Service) gin.HandlerFunc {
 		})
 
 		if err != nil {
-			c.JSON(http.StatusInternalServerError,
-				gin.H{
-					"status": "error",
-					"mes":    err.Error(),
-				})
+			reportStatus(c, http.StatusInternalServerError, "error", err.Error())
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+
+		reportStatus(c, http.StatusOK, "ok", "successfully register")
 	}
 }
 
