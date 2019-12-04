@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/amikai/gogolive/service"
-	"github.com/amikai/gogolive/service/mocks"
+	"github.com/amikai/gogolive/service/mock"
 	"github.com/gavv/httpexpect"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -50,8 +50,8 @@ func TestRegister(t *testing.T) {
 	defer mockCtrl.Finish()
 	requestPath := "/register"
 
-	setUpMockAndRouter := func() (*mocks.MockIUserService, *httptest.Server) {
-		mockUserService := mocks.NewMockIUserService(mockCtrl)
+	setUpMockAndRouter := func() (*mock.MockIUserService, *httptest.Server) {
+		mockUserService := mock.NewMockIUserService(mockCtrl)
 
 		gin.SetMode(gin.DebugMode)
 		router := gin.New()
