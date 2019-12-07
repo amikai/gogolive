@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/amikai/gogolive/config"
 	"github.com/amikai/gogolive/model"
 	"github.com/amikai/gogolive/service"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/qri-io/jsonschema"
@@ -24,11 +26,20 @@ func reportStatus(c *gin.Context, code int, status, mes string) {
 	return
 }
 
+type JWTClaims struct {
+	Account string `json:"account"`
+	Age     int    `json:"age"`
+	jwt.StandardClaims
+}
+
 func Signin(s *service.Service) gin.HandlerFunc {
 	signinForm := struct {
 		Account  string `json:"account" binding:"required"`
 		Password string `json:"password" binding:"required"`
 	}{}
+
+	jwtKey := config.Conf.JWT.Key
+	jwtAge := config.Conf.JWT.Age
 
 	return func(c *gin.Context) {
 		var err error
@@ -47,6 +58,28 @@ func Signin(s *service.Service) gin.HandlerFunc {
 			reportStatus(c, http.StatusBadRequest, "error", err.Error())
 			return
 		}
+
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, &JWTClaims{
+			signinForm.Account,
+			jwtAge,
+			jwt.StandardClaims{},
+		})
+		tokenString, err := token.SignedString([]byte(jwtKey))
+		if err != nil {
+			reportStatus(c, http.StatusInternalServerError, "error", err.Error())
+			return
+		}
+
+		http.SetCookie(c.Writer, &http.Cookie{
+			Name:     "token",
+			Value:    tokenString,
+			MaxAge:   jwtAge,
+			Path:     "/",
+			Secure:   true,
+			HttpOnly: true,
+			SameSite: http.SameSiteLaxMode,
+		})
+
 		reportStatus(c, http.StatusOK, "ok", "successfully signin")
 	}
 }

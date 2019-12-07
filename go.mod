@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/ajg/form v1.5.1 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fasthttp-contrib/websocket v0.0.0-20160511215533-1f3b11f56072 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/gavv/httpexpect v2.0.0+incompatible
@@ -17,7 +18,6 @@ require (
 	github.com/json-iterator/go v1.1.8 // indirect
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/klauspost/compress v1.9.3 // indirect
-	github.com/kr/pretty v0.1.0 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
@@ -28,7 +28,7 @@ require (
 	github.com/onsi/gomega v1.7.1 // indirect
 	github.com/qri-io/jsonschema v0.1.1
 	github.com/smartystreets/assertions v1.0.1 // indirect
-	github.com/smartystreets/goconvey v1.6.4 // indirect
+	github.com/spf13/viper v1.6.1
 	github.com/stretchr/testify v1.4.0
 	github.com/valyala/fasthttp v1.6.0 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect

@@ -5,12 +5,16 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
+	"github.com/amikai/gogolive/config"
 	"github.com/amikai/gogolive/service"
 	"github.com/amikai/gogolive/service/mock"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gavv/httpexpect"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHelloWorld(t *testing.T) {
@@ -187,5 +191,38 @@ func TestSignin(t *testing.T) {
 			Expect().
 			Status(http.StatusBadRequest).JSON()
 		respJSON.Path("$.status").Equal("error")
+	})
+
+	t.Run("test token", func(t *testing.T) {
+		config.Conf.JWT.Key = "JWT_KEY"
+		config.Conf.JWT.Age = 6666 // magic number
+		mockUserService, server := setUpMockAndRouter()
+		defer server.Close()
+
+		mockUserService.EXPECT().VerifyPassword(gomock.Any()).Return(nil).Times(1)
+		resp := newRequest(t, server.URL, requestPath).
+			WithHeader("Content-Type", "application/json").
+			WithJSON(map[string]interface{}{
+				"account":  "account",
+				"password": "password",
+			}).
+			Expect().
+			Status(http.StatusOK)
+
+		gotMaxAge := config.Conf.JWT.Age
+
+		cookie := resp.Cookie("token")
+		tokenString := cookie.Value().Raw()
+		jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
+			claims := token.Claims.(*JWTClaims)
+			assert.Equal(t, claims.Account, "account")
+			assert.Equal(t, claims.Age, gotMaxAge)
+			return nil, nil
+		})
+		cookie.MaxAge().Equal(time.Duration(gotMaxAge) * time.Second)
+
+		respJSON := resp.JSON()
+		respJSON.Path("$.status").Equal("ok")
+
 	})
 }
