@@ -22,25 +22,6 @@ func NewUserService(repo *model.Repo) *UserService {
 	}
 }
 
-func hashAndSalt(password []byte) (string, bool) {
-	hash, err := bcrypt.GenerateFromPassword(password, bcrypt.MinCost)
-	if err != nil {
-		return "", false
-	}
-	return string(hash), true
-}
-
-func comparePassword(hashedPassword string, plainPassword []byte) bool {
-	// Since we'll be getting the hashed password from the DB it
-	// will be a string so we'll need to convert it to a byte slice
-	byteHash := []byte(hashedPassword)
-	err := bcrypt.CompareHashAndPassword(byteHash, plainPassword)
-	if err != nil {
-		return false
-	}
-	return true
-}
-
 // VerifyPassword verify password when login
 func (service *UserService) VerifyPassword(user model.User) error {
 	var err error
