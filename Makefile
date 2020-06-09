@@ -1,14 +1,12 @@
 EXECUTABLE := gogolive
 
-CC := gcc-9
-GO ?= go
-PACKAGES ?= $(shell $(GO) list ./...)
-GOFILES := $(shell find . -name "*.go" -type f)
+export CC=$(shell brew --prefix llvm)/bin/clang
+export CXX=$(shell brew --prefix llvm)/bin/clang++
+GO=go
 
 .PHONY: test
 test: 
-	@$(GO) test -v -cover -coverprofile coverage.txt $(PACKAGES) && echo "\n==>\033[32m Ok\033[m\n" || exit 1
-	@$(GO) clean -testcache ./...
+	@$(GO) test -v -cover -tags $(TAGS) -coverprofile=coverage.txt ./... && echo "\n==>\033[32m Ok\033[m\n" || exit 1
 
 .PHONY: build
 build: $(EXECUTABLE)
