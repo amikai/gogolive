@@ -12,12 +12,24 @@ var Conf ConfYaml
 
 var defaultConf = []byte(`
 jwt:
-	key: "YOUR_JWT_KEY"
-	age: 3000 # UNIX timestamp
+    key: "YOUR_JWT_KEY"
+    age: 3000 # UNIX timestamp
+
+log_level: "debug"
+
+web_server:
+    port: ":8080"
+
 `)
 
 type ConfYaml struct {
 	JWT SectionJWT `yaml: "jwt"`
+	WebServer SectionWebServer `yaml: "web_server"`
+	LogLevel string `yaml: "loglevel"`
+}
+
+type SectionWebServer struct {
+	Port string `yaml: "port"`
 }
 
 type SectionJWT struct {
@@ -55,5 +67,7 @@ func LoadConf(confPath string) error {
 	}
 	Conf.JWT.Key = viper.GetString("jwt.key")
 	Conf.JWT.Age = viper.GetInt("jwt.age")
+	Conf.LogLevel = viper.GetString("log_level")
+	Conf.WebServer.Port = viper.GetString("web_server.port")
 	return nil
 }

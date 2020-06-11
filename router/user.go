@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/qri-io/jsonschema"
+	log "github.com/sirupsen/logrus"
 )
 
 func jsonValidate(schema []byte) bool {
@@ -116,6 +117,7 @@ func Register(s *service.Service) gin.HandlerFunc {
 
 func HelloWorld() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		log.Debug("Hello world")
 		c.JSON(http.StatusOK, gin.H{
 			"hello": "world",
 		})

@@ -16,6 +16,10 @@ $(EXECUTABLE): $(GOFILES)
 	$(GO) mod tidy
 	$(GO) build -o $@
 
+.PHONY: run
+run: build
+	./$(EXECUTABLE)
+
 .PHONY: clean
 clean:
 	@$(GO) clean -modcache -x -i ./...
