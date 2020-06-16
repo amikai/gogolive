@@ -20,21 +20,29 @@ log_level: "debug"
 web_server:
     port: ":8080"
 
+rtmp_server:
+    port: ":1935"
+
 `)
 
 type ConfYaml struct {
-	JWT SectionJWT `yaml: "jwt"`
-	WebServer SectionWebServer `yaml: "web_server"`
-	LogLevel string `yaml: "loglevel"`
+	JWT        SectionJWT        `yaml: "jwt"`
+	WebServer  SectionWebServer  `yaml: "web_server"`
+	RtmpServer SectionRtmpServer `yaml: "rtmp_server"`
+	LogLevel   string            `yaml: "loglevel"`
+}
+
+type SectionJWT struct {
+	Key string `yaml: "key"`
+	Age int    `yaml: "age"`
 }
 
 type SectionWebServer struct {
 	Port string `yaml: "port"`
 }
 
-type SectionJWT struct {
-	Key string `yaml: "key"`
-	Age int    `yaml: "age"`
+type SectionRtmpServer struct {
+	Port string `yaml: "port"`
 }
 
 func LoadConf(confPath string) error {
@@ -69,5 +77,6 @@ func LoadConf(confPath string) error {
 	Conf.JWT.Age = viper.GetInt("jwt.age")
 	Conf.LogLevel = viper.GetString("log_level")
 	Conf.WebServer.Port = viper.GetString("web_server.port")
+	Conf.RtmpServer.Port = viper.GetString("rtmp_server.port")
 	return nil
 }
