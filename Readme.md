@@ -1,6 +1,6 @@
-# gogolive
-![](./logo.png)
-
+<p align="center">
+  <img src="./logo.png"/>
+</p>
 Live streaming server implementiation of rtmp 1.0 in Golang
 
 ## Progress
